@@ -1,139 +1,178 @@
+// p5.plotSvg + p5.Polar Template
 
-// Plotter Template #2 (includes p5.Polar and p5.plotSvg)
+p5.disableFriendlyErrors = true; 
+let bDoExportSvg = false; 
+// if using randomness, experiment w/ myRandomSeed to see different versions (or iterations) of your sketch
+let myRandomSeed = 12345; 
+let regenerateButton, exportSvgButton; 
 
-// Press "s" to export drawing as SVG
+// canvas size
+const DPI = 70; // dots per inch
+const PAGE_W = 8.5*DPI; 
+const PAGE_H = 11*DPI;
 
-p5.disableFriendlyErrors = true; // keep warnings quiet
-let bDoExportSvg = false;
-
-// This canvas dimensions are 8.5"x11" at 70 dpi
-const DPI = 70; // dots per inch 
-const PAGE_W = 8.5 * DPI;
-const PAGE_H = 11 * DPI;
-
-
+//------------------------------------------------------------
 function setup() {
   createCanvas(PAGE_W, PAGE_H);
+  UI();
   noFill();
+  // Set the SVG group by stroke color to `true`, so that strokes 
+  // of the same color are grouped together in the SVG file. 
   setSvgGroupByStrokeColor(true); 
 }
 
-function draw() {
-  background(255);
-  if (bDoExportSvg) {
-    beginRecordSvg("output.svg");
-  }
+function draw(){
+  clear();
+  randomSeed(myRandomSeed); 
+  background(255); 
   
-  myDrawing();
+  if (bDoExportSvg == true){
+    beginRecordSvg(this, "myOutput_" + month() + day() + year() + "_" + myRandomSeed + ".svg");
+  }
 
-  if (bDoExportSvg) {
-    endRecordSvg();
+  // define your drawing below
+  myDrawing(); 
+
+  if (bDoExportSvg){
+    endRecordSvg(); 
     bDoExportSvg = false;
   }
 }
-////////////////////////////////////////
 
 function myDrawing() {
 
-  angleMode(DEGREES);
+  strokeWeight(1); //for this week drawings I used the last week drawings that with two rings,but for the innter ring I used mouse to controal it become to the horizontal row and for the outer ring I used the p5.Polar library to make the rotation. The function actually very diffferent from last week.
+  // I tried to coppy from last week and make it have the drawing first, but the p5.polar.js, which is different from last week, so it didn't work,therefore I asked llm, how do I work for this week p5.js template. As the process of change to fit with this week actually, I personally thinkit is like rewrite a new code at all. 
+ 
+  let count = 8;
+  let squareSize = 20;
 
   let centerX = width / 2;
   let centerY = height / 2;
 
-  let count = 8;
-  let squareSize = 20;
-
-
   // ==================================
   // INNER RING
   // Circle -> Horizontal Row
+  // mouseY controls the transition
   // ==================================
 
-  // Distance from mouse to the final row
-  let d = abs(mouseY - centerY);
+  let d =
+    abs(mouseY - centerY);
 
-  // Close to row = 1
-  // Far from row = 0
-  let lineUpAmount = map(d, 0, 150, 1, 0, true);
+  let amount =
+    map(d, 0, 150, 1, 0, true);
 
-  for (let i = 0; i < count; i++) {
 
-    let angle = (360 / count) * i;
+  for (let i = 1; i <= count; i++) {
 
-    // Circle position
-    let circleX = centerX + 120 * cos(angle);
-    let circleY = centerY + 120 * sin(angle);
+    // CIRCLE POSITION
 
-    // Row position
-    let lineX = map(
-      i,
-      0,
-      count - 1,
-      centerX - 140,
-      centerX + 140
-    );
+    let angle =
+      i * (360 / count);
 
-    let lineY = centerY;
+    let radiansAngle =
+      radians(angle);
 
-    // Move between circle and row
+    let circleX =
+      centerX + sin(radiansAngle) * 120;
+
+    let circleY =
+      centerY - cos(radiansAngle) * 120;
+
+
+    // ROW POSITION
+
+    let lineX =
+      map(
+        i,
+        1,
+        count,
+        centerX - 140,
+        centerX + 140
+      );
+
+    let lineY =
+      centerY;
+
+
+    // TRANSITION:
+    // Circle -> Row
+
     let currentX =
-      lerp(circleX, lineX, lineUpAmount);
+      lerp(circleX, lineX, amount);
 
     let currentY =
-      lerp(circleY, lineY, lineUpAmount);
+      lerp(circleY, lineY, amount);
 
-    push();
-
-    translate(currentX, currentY);
 
     square(
-      -squareSize / 2,
-      -squareSize / 2,
+      currentX - squareSize / 2,
+      currentY - squareSize / 2,
       squareSize
     );
-
-    pop();
   }
+
 
 
   // ==================================
   // OUTER RING
-  // Rotates with mouseX
+  // p5.Polar
+  // mouseX controls rotation
   // ==================================
 
   let outerRotation =
     map(mouseX, 0, width, -120, 120);
 
-  for (let i = 0; i < count; i++) {
+
+  push();
+
+  setCenter(centerX, centerY);
+
+
+  for (let i = 1; i <= count; i++) {
 
     let angle =
-      (360 / count) * i + outerRotation;
+      i * (360 / count) + outerRotation;
 
-    let x =
-      centerX + 180 * cos(angle);
-
-    let y =
-      centerY + 180 * sin(angle);
-
-    push();
-
-    translate(x, y);
-
-    rotate(angle);
-
-    square(
-      -squareSize / 2,
-      -squareSize / 2,
-      squareSize
+    polarSquare(
+      angle,
+      squareSize / 2,
+      180
     );
-
-    pop();
   }
+
+
+  pop();
 }
 
-
-function keyPressed() {
-  if (key == "s") {
-    bDoExportSvg = true;
-  }
+// Make a new random seed when the "Regenerate" button is pressed
+function regenerate(){
+  myRandomSeed = round(millis()); 
 }
+
+// Set the SVG to be exported when the "Export SVG" button is pressed
+function initiateSvgExport(){
+  bDoExportSvg = true; 
+}
+
+function UI() {
+  regenerateButton = createButton('Regenerate');
+  regenerateButton.position(0, height);
+  regenerateButton.mousePressed(regenerate); // run regenerate() when pressed
+  
+  exportSvgButton = createButton('Export SVG');
+  exportSvgButton.position(120, height);
+  exportSvgButton.mousePressed(initiateSvgExport); // run initiateSvgExport() when pressed
+}
+
+/*
+This template uses the following sketch as a starting point: 
+https://editor.p5js.org/golan/sketches/LRTXmDg2q
+
+Additional references/info:
+https://github.com/golanlevin/p5.plotSvg
+https://github.com/liz-peng/p5.Polar
+https://github.com/golanlevin/p5.plotSvg/blob/main/documentation.md#beginrecordsvg
+https://github.com/golanlevin/p5.plotSvg/blob/main/documentation.md#endrecordsvg
+
+*/
