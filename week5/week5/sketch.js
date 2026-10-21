@@ -1,82 +1,75 @@
+
+// Flower Clock - Final Version
+// Creative Coding - Week 5 & Week 6
+
+let simulatedTime;
+let previousMillis;
+let currentSpeed = 1;
+
 function setup() {
   let canvas = createCanvas(500, 500);
   canvas.parent('week5-sketch'); // do not delete
+
+  // Begin at the current real-world time
+  simulatedTime = hour() + minute() / 60 + second() / 3600;
+  previousMillis = millis();
 }
 
 function draw() {
 
-  // ==========================================
-  // 1. CENTER
-  // ==========================================
-
   let centerX = width / 2;
   let centerY = height / 2;
 
-
   // ==========================================
-  // 2. TIME
-  // ==========================================
-
-  // Get the real current time
-  let hr = hour();
-  let min = minute();
-  let sec = second();
-
-  // Convert real time into one continuous number
-  // Example: 14:30 = 14.5
-  let realTime =
-    hr +
-    min / 60 +
-    sec / 3600;
-
-
-  // Start from the real time,
-  // then accelerate it:
-  // 1 real second = 1 hour in the artwork
-  let h =
-    (realTime + millis() / 1000) % 24;
-
-
-  // ==========================================
-  // 3. MOUSE TIME CONTROL
+  // 1. TIME AND MOUSE INTERACTION
   // ==========================================
 
-  // If mouse is inside the canvas,
-  // mouse position controls the time
-  if (
-    mouseX >= 0 &&
-    mouseX <= width &&
-    mouseY >= 0 &&
-    mouseY <= height
-  ) {
+  let now = millis();
+  let deltaTime = (now - previousMillis) / 1000;
+  previousMillis = now;
 
-    let angle = atan2(
-      mouseY - centerY,
-      mouseX - centerX
-    );
+  // Measure distance from mouse to flower
+  let mouseDistance = dist(
+    mouseX, mouseY,
+    centerX, centerY
+  );
 
-    let degree = degrees(angle);
+  // Only respond when mouse is inside canvas
+  let mouseInside =
+    mouseX >= 0 && mouseX <= width &&
+    mouseY >= 0 && mouseY <= height;
 
-    // Make top = 0 degrees
-    degree = degree + 90;
+  let targetSpeed = 1;
 
-    if (degree < 0) {
-      degree = degree + 360;
-    }
-
-    // Convert mouse angle into 24 hours
-    h = map(
-      degree,
-      0,
-      360,
-      0,
-      24
+  if (mouseInside && mouseDistance < 180) {
+    // Closer mouse = faster time
+    targetSpeed = map(
+      mouseDistance,
+      0, 180,
+      8, 1,
+      true
     );
   }
 
+  // Smoothly transition between speeds
+  currentSpeed = lerp(
+    currentSpeed,
+    targetSpeed,
+    0.05
+  );
+
+  // One complete day takes 40 seconds normally
+  // Mouse proximity makes the day pass faster
+  simulatedTime +=
+    deltaTime * (24 / 40) * currentSpeed;
+
+  simulatedTime = simulatedTime % 24;
+
+  let h = simulatedTime;
+
 
   // ==========================================
-  // 4. SKY
+  // 2. SKY COLOR
   // ==========================================
 
   let nightColor = color("#14213D");
@@ -86,244 +79,127 @@ function draw() {
 
   let skyColor;
 
-
-  // Midnight -> Sunrise
   if (h < 6) {
-
-    let amount = map(
-      h,
-      0,
-      6,
-      0,
-      1
-    );
-
     skyColor = lerpColor(
       nightColor,
       morningColor,
-      amount
+      map(h, 0, 6, 0, 1)
     );
-  }
-
-
-  // Sunrise -> Noon
-  else if (h < 12) {
-
-    let amount = map(
-      h,
-      6,
-      12,
-      0,
-      1
-    );
-
+  } else if (h < 12) {
     skyColor = lerpColor(
       morningColor,
       noonColor,
-      amount
+      map(h, 6, 12, 0, 1)
     );
-  }
-
-
-  // Noon -> Sunset
-  else if (h < 18) {
-
-    let amount = map(
-      h,
-      12,
-      18,
-      0,
-      1
-    );
-
+  } else if (h < 18) {
     skyColor = lerpColor(
       noonColor,
       sunsetColor,
-      amount
+      map(h, 12, 18, 0, 1)
     );
-  }
-
-
-  // Sunset -> Midnight
-  else {
-
-    let amount = map(
-      h,
-      18,
-      24,
-      0,
-      1
-    );
-
+  } else {
     skyColor = lerpColor(
       sunsetColor,
       nightColor,
-      amount
+      map(h, 18, 24, 0, 1)
     );
   }
-
 
   background(skyColor);
 
 
   // ==========================================
-  // 5. SUN + MOON
+  // 3. SUN AND MOON
   // ==========================================
 
   let orbitRadius = 180;
 
+  // 6 AM = left, 12 PM = top
+  // 6 PM = right, 12 AM = bottom
+  let sunAngle = map(h, 0, 24, 90, 450);
 
-  // Convert 24 hours into one full rotation
-  let sunAngle = map(
-    h,
-    0,
-    24,
-    90,
-    450
-  );
-
-
-  // ---------- SUN ----------
-
-  let sunX =
-    centerX +
+  let sunX = centerX +
     cos(radians(sunAngle)) * orbitRadius;
 
-  let sunY =
-    centerY +
+  let sunY = centerY +
     sin(radians(sunAngle)) * orbitRadius;
 
+  let moonAngle = sunAngle + 180;
 
-  noStroke();
-  fill("#FFD166");
-
-  circle(
-    sunX,
-    sunY,
-    50
-  );
-
-
-  // ---------- MOON ----------
-
-  // Moon is always 180 degrees
-  // opposite from the sun
-  let moonAngle =
-    sunAngle + 180;
-
-
-  let moonX =
-    centerX +
+  let moonX = centerX +
     cos(radians(moonAngle)) * orbitRadius;
 
-  let moonY =
-    centerY +
+  let moonY = centerY +
     sin(radians(moonAngle)) * orbitRadius;
 
+  noStroke();
 
+  // Soft sun glow
+  fill(255, 209, 102, 35);
+  circle(sunX, sunY, 75);
+
+  fill("#FFD166");
+  circle(sunX, sunY, 50);
+
+  // Moon
   fill("#F1F1E6");
-
-  circle(
-    moonX,
-    moonY,
-    45
-  );
+  circle(moonX, moonY, 45);
 
 
   // ==========================================
-  // 6. FLOWER BLOOM
+  // 4. FLOWER BLOOM
   // ==========================================
 
-  let bloom;
+  let bloom = 0;
 
-
-  // 6 AM -> 12 PM
-  // Flower slowly opens
   if (h >= 6 && h <= 12) {
-
-    bloom = map(
-      h,
-      6,
-      12,
-      0,
-      1
-    );
+    bloom = map(h, 6, 12, 0, 1);
+  } else if (h > 12 && h <= 18) {
+    bloom = map(h, 12, 18, 1, 0);
   }
 
-
-  // 12 PM -> 6 PM
-  // Flower slowly closes
-  else if (h > 12 && h <= 18) {
-
-    bloom = map(
-      h,
-      12,
-      18,
-      1,
-      0
-    );
-  }
-
-
-  // Night
-  else {
-
-    bloom = 0;
-  }
+  // Smooth easing for natural movement
+  bloom = bloom * bloom * (3 - 2 * bloom);
 
 
   // ==========================================
-  // 7. DRAW FLOWER
+  // 5. DRAW FLOWER
   // ==========================================
 
   push();
+  translate(centerX, centerY);
 
-  translate(
-    centerX,
-    centerY
-  );
-
-
-  // Petals move outward as the flower opens
   let petalDistance = map(
-    bloom,
-    0,
-    1,
-    10,
-    45
+    bloom, 0, 1, 10, 48
   );
 
+  let petalWidth = map(
+    bloom, 0, 1, 13, 38
+  );
 
-  // Petals rotate while opening
+  let petalLength = map(
+    bloom, 0, 1, 48, 85
+  );
+
   let petalRotation = map(
-    bloom,
-    0,
-    1,
-    0,
-    30
+    bloom, 0, 1, 0, 30
   );
 
-
-  fill("#F7A8B8");
   noStroke();
 
-
-  // Draw 8 petals
+  // Eight petals open and close together
   for (let i = 0; i < 8; i++) {
-
     push();
 
-    rotate(
-      radians(
-        i * 45 + petalRotation
-      )
-    );
+    rotate(radians(i * 45 + petalRotation));
+
+    fill("#F7A8B8");
 
     ellipse(
       0,
       -petalDistance,
-      35,
-      80
+      petalWidth,
+      petalLength
     );
 
     pop();
@@ -331,44 +207,21 @@ function draw() {
 
 
   // ==========================================
-  // 8. FLOWER CENTER PULSE
+  // 6. FLOWER CENTER BREATHING
   // ==========================================
 
-  // second() controls a subtle pulse
-  // in the center of the flower
-  let pulse = map(
-  sin(radians(sec * 30)),
-  -1,
-  1,
-  28,
-  42
-  );
+  // Real seconds control a gentle pulse
+  let sec = second() +
+    (millis() % 1000) / 1000;
 
+  let pulse = map(
+    sin(TWO_PI * sec / 4),
+    -1, 1,
+    28, 38
+  );
 
   fill("#FFD166");
-
-  circle(
-    0,
-    0,
-    pulse
-  );
-
+  circle(0, 0, pulse);
 
   pop();
-
-
-  // ==========================================
-  // 9. TIME DISPLAY
-  // Temporary for testing
-  // ==========================================
-
-  fill(0);
-  noStroke();
-  textSize(16);
-
-  text(
-    nf(h, 2, 1),
-    20,
-    30
-  );
 }
