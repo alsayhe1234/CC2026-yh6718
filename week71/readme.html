@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="sketch.js"></script>
+  <title>Project Mapping</title> <!--Update your title here-->
+  <!--Add style to your code within the style tag <style></style>
+  Read the W3Schools CSS Intro for more: https://www.w3schools.com/css/css_intro.asp 
+  -->
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 2em;
+      /*padding: 1em;*/
+      color: #000000;
+      background-color: #f0f0f0;
+    }
+
+    a {
+      color: rgb(0,0,255);
+    }
+
+    a:hover {
+      text-decoration: dashed;
+    }
+
+    h1 {
+      /* Insert your own style here */
+    }
+
+    h2 {
+      /* Insert your own style here */
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Project Mapping</h1>
+
+<p>Team Members: Yuqian He, Sisley, Yuetong, Zetao</p>
+
+<h2>Project Description</h2>
+
+<p>
+This project is each team member integrated our individual clock animations into the shared projection-mapping system.
+So we explored how different visual styles and animations could coexist within the same physical projection environment. By combining independent sketches, we experimented with the relationship between digital imagery, physical surfaces, time, and movement.
+My animation work was an animated flower clock featuring a flower that gradually opens and closes throughout a simulated day. The background transitions between different sky colors, while the sun and moon move around the flower to represent the passage of time.
+</p>
+
+<h2>Process Documentation</h2>
+
+<h3>Week 7</h3>
+
+<p>
+We began by experimenting with the projection-mapping setup and developing our individual sketches.
+We started by combining these animations into one shared program, assigning different visual textures to separate projection surfaces.
+My flower animation was adapted from my previous Flower Clock project. The main challenge was integrating a sketch originally designed for a 500 * 500 canvas into the team's projection-mapping system.
+</p>
+
+<h3>Week 8</h3>
+
+<p>
+During our second workshop, we continued adjusting the shared code and testing the projection setup.
+One issue involved differences between the original sketch dimensions and the graphics buffer used for projection. My flower animation initially appeared incorrectly positioned because its coordinates were being calculated for a different canvas size.
+To resolve this, I adjusted the positioning and scale calculations within my own texture function while keeping the team's main setup and drawing structure unchanged.
+We also coordinated several code settings across the team, including angle measurements in degrees and RGB color mode, to improve consistency between our individual sketches.
+By the end of the workshop, we had integrated our animations into the shared projection mapping system for the class demonstration.
+</p>
+
+<h3>Week 9</h3>
+
+<p>
+This week, we focused on documenting our process and reflecting on the technical challenges of collaboration.
+One important lesson was that combining multiple p5.js sketches involves more than placing their code in the same file. Each animation may use different coordinate systems, dimensions, drawing settings, and timing behaviors.
+Through debugging and testing, we learned how to adapt individual sketches to a shared environment while preserving each member's original visual approach.
+</p>
+
+    <ul>
+    <li><a href="template/index.html" target="_blank">Link to sketch</a></li>
+    </ul>
+
+  <!-- Optional, share as needed-->
+ 
+<h2>Documentation Images</h2>
+
+<h3>Workshop 1 — Initial groupwork</h3>
+
+<figure>
+  <img src="media/image.png" height="400"
+       alt="First projection mapping workshop">
+  <figcaption>
+    Figure 1. Our first group workshop.
+    Several parts of the animations were not
+    fully displayed due to mapping and
+    positioning issues.
+  </figcaption>
+</figure>
+
+<h3>Workshop 2 — Final Testing (Week 9)</h3>
+
+<figure>
+  <img src="media/image1.png" height="400"
+       alt="Projection mapping workshop 2">
+  <figcaption>
+    Figure 2. After adjusting the code and
+    projection mapping, the animations were
+    displayed correctly.
+  </figcaption>
+</figure>
+
+<figure>
+  <img src="media/image2.png" height="400"
+       alt="Projection mapping workshop 2">
+  <figcaption>
+    Figure 3. We tried different projection angles and distances to
+    ensure the animations were displayed correctly on the physical surfaces.
+  </figcaption>
+</figure>
+
+<figure>
+  <img src="media/image3.png" height="400"
+       alt="Final projection mapping result">
+  <figcaption>
+    Figure 4.Seeing our mapping result from the laptopscreen.
+  </figcaption>
+</figure>
+
+</body>
+</html>
